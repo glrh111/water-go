@@ -66,6 +66,7 @@ type node struct {
 	next, down *node
 	isGuard bool  // every linked list's first element is guard
 	level int  // start from 0
+	size int   // how many nodes after this node
 	key Comparer
 	value interface{}
 }
@@ -77,17 +78,20 @@ func (nd *node) insert(newNd *node) *node {
 	}
 	if nd.isGuard {
 		nd.next = nd.next.insert(newNd)
+		nd.size = nd.next.size + 1
 		return nd
 	}
 	comp := nd.key.CompareTo(newNd.key)
 	if comp == CompareBigger {
 		newNd.next = nd
+		newNd.size = nd.size + 1
 		return newNd
-	} else if comp == CompareBigger {
+	} else if comp == CompareEqual {
 		nd.value = newNd.value
 		return nd
 	} else {
 		nd.next = nd.next.insert(newNd)
+		nd.size = nd.next.size + 1
 		return nd
 	}
 }
@@ -99,6 +103,9 @@ func (nd *node) delete(dlNd *node) *node {
 	}
 	if nd.isGuard {
 		nd.next = nd.next.delete(dlNd)
+		if nd.next != nil {
+			nd.size = nd.next.size + 1
+		}
 		return nd
 	}
 	comp := nd.key.CompareTo(dlNd.key)
@@ -108,6 +115,9 @@ func (nd *node) delete(dlNd *node) *node {
 		return nd.next
 	} else {
 		nd.next = nd.next.delete(dlNd)
+		if nd.next != nil {
+			nd.size = nd.next.size + 1
+		}
 		return nd
 	}
 }
@@ -228,6 +238,7 @@ func (sl *Skiplist) Put(key Comparer, value interface{}) int {
 				key: nil,
 				value: nil,
 			}
+			newGuard.insert(newNd)
 			 newGuard.down = sl.head
 			 sl.head = newGuard
 			 newNdList = append([]*node{newNd}, newNdList...)
@@ -277,7 +288,7 @@ func (sl *Skiplist) String() string {
 		s += fmt.Sprintf("L[%v] ", currentGuard.level)
 		for nd := currentGuard; nd != nil; nd = nd.next {
 			if nd.isGuard {
-				s += "[G] "
+				s += fmt.Sprintf("[G:%v] ", nd.size)
 			} else {
 				s += fmt.Sprintf("[%v:%v]", nd.key, nd.value)
 				if nd.down != nil {
