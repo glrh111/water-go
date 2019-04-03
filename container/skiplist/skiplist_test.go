@@ -7,10 +7,6 @@ import (
 	"math/rand"
 )
 
-var (
-	sl = NewSkiplist()
-)
-
 func init() {
 
 }
@@ -20,16 +16,16 @@ func errorString(tip string, expect interface{}, get interface{}) string {
 }
 
 func TestSkiplist(t *testing.T) {
-	sl := NewSkiplist()
+	sl := New()
 	// init length
 	initLen := sl.Len()
 	if initLen != 0 {
-		t.Errorf(errorString("Init length", 0, initLen))
+		t.Errorf(errorString("New length", 0, initLen))
 	}
 	// empty
 	initEmpty := sl.IsEmpty()
 	if initEmpty != true {
-		t.Errorf(errorString("Init list", true, initEmpty))
+		t.Errorf(errorString("New list", true, initEmpty))
 	}
 	// insert
 	for key, value := range container.SearchMap {
@@ -102,19 +98,9 @@ func TestSkiplist(t *testing.T) {
 
 func BenchmarkSkiplist_Put(b *testing.B) {
 	b.ReportAllocs()
-
 	// data
-	intSlice := rand.Perm(10000)  // 1M
-
-	// put
-	b.Log("Puting...")
-	for _, key := range intSlice {
-		sl.Put(IntKey(key), 1)
-	}
-
-	// get
-	b.Logf("Geting... b.N = [%v]\n", b.N)
+	sl := New()
 	for i := 0; i < b.N; i++ {
-		sl.Get(IntKey(i))
+		sl.Put(IntKey(i), i)
 	}
 }

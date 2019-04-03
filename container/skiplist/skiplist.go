@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// TODO 实现有问题，慢得一笔
+
 const (
 	CompareBigger = 1
 	CompareEqual = 0
@@ -127,7 +129,7 @@ type Skiplist struct {
 	size int    // total element amount
 }
 
-func NewSkiplist() *Skiplist {
+func New() *Skiplist {
 	rand.Seed(int64(time.Now().Nanosecond()))
 	return &Skiplist{
 		head: &node{
